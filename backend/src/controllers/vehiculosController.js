@@ -1,9 +1,9 @@
 // controllers/vehiculosController.js
-import conexion from "../config/db.js";
+import db from "../config/db.js";
 
 export const getVehiculos = async (req, res) => {
   try {
-    const [vehiculos] = await conexion.query("SELECT * FROM vehiculos");
+    const [vehiculos] = await db.query("SELECT * FROM vehiculos");
     res.json(vehiculos);
   } catch (error) {
     console.error("Error al obtener vehículos:", error);

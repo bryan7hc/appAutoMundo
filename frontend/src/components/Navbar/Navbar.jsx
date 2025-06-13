@@ -63,7 +63,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 bg-red-0 w-full bg-opacity-30 backdrop-blur-md z-50">
+      <nav className="fixed top-0 left-1 bg-red-0 w-full bg-opacity-30 backdrop-blur-md z-90">
         <div className="flex justify-between items-center sm:px-12 sm:py-4 px-4 py-3">
           <div>
             <img src={Logo} alt="Logo del sitio" className="w-[100px]" />

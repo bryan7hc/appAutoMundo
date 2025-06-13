@@ -1,18 +1,15 @@
 import db from "../config/db.js";
 import bcrypt from "bcrypt";
 
-export const loginUsuario = (req, res) => {
+export const loginUsuario = async (req, res) => {
   const { correo, contraseña } = req.body;
   console.log("Recibido login:", correo, contraseña);
 
-  const query = "SELECT * FROM Usuarios WHERE correo = ?";
-  db.query(query, [correo], (err, results) => {
-    console.log("Entró al callback de db.query");
-
-    if (err) {
-      console.error("Error en consulta:", err);
-      return res.status(500).json({ error: "Error del servidor" });
-    }
+  try {
+    const [results] = await db.query(
+      "SELECT * FROM Usuarios WHERE correo = ?",
+      [correo]
+    );
 
     if (results.length === 0) {
       console.log("Usuario no encontrado");
@@ -20,30 +17,28 @@ export const loginUsuario = (req, res) => {
     }
 
     const usuario = results[0];
-    const hash = usuario["contraseña"]; // ← Acceso correcto
+    const hash = usuario["contraseña"]; // asegúrate de que este campo coincida exactamente con el nombre en la BD
 
     console.log("Comparando hash con contraseña...");
 
-    bcrypt.compare(contraseña, hash, (err, isMatch) => {
-      if (err) {
-        console.error("Error al comparar contraseñas:", err);
-        return res.status(500).json({ error: "Error del servidor" });
-      }
+    const isMatch = await bcrypt.compare(contraseña, hash);
 
-      if (!isMatch) {
-        console.log("Contraseña incorrecta");
-        return res.status(401).json({ error: "Contraseña incorrecta" });
-      }
+    if (!isMatch) {
+      console.log("Contraseña incorrecta");
+      return res.status(401).json({ error: "Contraseña incorrecta" });
+    }
 
-      console.log("Login exitoso");
-      res.json({
-        mensaje: "Inicio de sesión exitoso",
-        usuario: {
-          usuario_id: usuario.usuario_id,
-          nombre: usuario.nombre,
-          correo: usuario.correo,
-        },
-      });
+    console.log("Login exitoso");
+    return res.status(200).json({
+      mensaje: "Inicio de sesión exitoso",
+      usuario: {
+        usuario_id: usuario.usuario_id,
+        nombre: usuario.nombre,
+        correo: usuario.correo,
+      },
     });
-  });
+  } catch (error) {
+    console.error("Error en login:", error);
+    return res.status(500).json({ error: "Error del servidor" });
+  }
 };
