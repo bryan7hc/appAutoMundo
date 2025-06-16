@@ -1,22 +1,27 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar/Navbar";
+import UserLayout from "./layouts/UserLayout";
+import AdminLayout from "./layouts/AdminLayout";
+
 import Hero from "./pages/Hero";
-import Categories from "./pages/Categories"; // Importa tu componente Categorias
-import Footer from "./components/Footer/Footer";
+import Categories from "./pages/Categories";
 import DetailVehicle from "./components/DetailVehicle/DetailVehicle";
-// import Login from "./components/Login/Login";
-// import VehiculoDetalle from "./components/VehiculoDetalle";
+
+//import AdminDashboard from "./pages/admin/AdminDashboard"; // ejemplo
+//import AdminVehiculos from "./pages/admin/Vehiculos"; // ejemplo
 
 function App() {
   return (
     <Router>
-      <Navbar />
       <Routes>
-        {/* Ruta principal */}
-        <Route path="/" element={<Hero />} />
-        {/* Ruta para las categorías */}
-        <Route path="/categories" element={<Categories />} />
-        <Route path="/vehiculo/:id" element={<DetailVehicle />} />
+        {/* Rutas para usuario */}
+        <Route element={<UserLayout />}>
+          <Route path="/" element={<Hero />} />
+          <Route path="/categories" element={<Categories />} />
+          <Route path="/vehiculo/:id" element={<DetailVehicle />} />
+        </Route>
+
+        {/* Rutas para administrador */}
+        
       </Routes>
     </Router>
   );
