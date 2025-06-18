@@ -81,10 +81,11 @@ const Categories = () => {
                   className="flex flex-col items-center cursor-pointer"
                 >
                   <img
-                    src={`http://localhost:3000/categorias/${vehiculo.categoria}s/${vehiculo.imagen}`}
+                    src={`http://localhost:3000/imagenes/${vehiculo.imagen}`}
                     alt={vehiculo.nombre}
                     className="h-52 w-auto mb-2 object-contain"
                   />
+
                   <span className="text-sm font-medium text-center">
                     {vehiculo.nombre}
                   </span>
@@ -97,7 +98,6 @@ const Categories = () => {
           </div>
         )}
       </main>
-      <Footer />
     </>
   );
 };

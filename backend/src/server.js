@@ -3,6 +3,8 @@ import cors from "cors";
 import userRoute from "./routes/userRoute.js";
 import authRoute from "./routes/authRoute.js";
 import vehiculosRoutes from "./routes/vehiculosRoutes.js";
+import pedidosRoutes from "./routes/pedidosRoutes.js";
+import adminRoutes from "./routes/adminRoute.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -25,11 +27,20 @@ app.use("/api/usuarios", userRoute);
 //CATEGORIAS DE VEHICULOS
 app.use("/api/vehiculos", vehiculosRoutes);
 
-// Servir imágenes estáticas
+//Admin
+app.use("/api/admin", adminRoutes); //
+
+// Pedido 
+app.use("/api/pedidos", pedidosRoutes);
+
+//Comprobantes
 app.use(
-  "/categorias",
-  express.static(path.join(__dirname, "public/categorias"))
+  "/comprobantes",
+  express.static(path.join(__dirname, "src/public/comprobantes"))
 );
+
+//Accesible la carpeta desde el naveador
+app.use(express.static(path.join(__dirname, "public")));
 
 //INICIAR SERVIDOR
 app.listen(PORT, () => {

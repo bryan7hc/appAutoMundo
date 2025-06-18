@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "../../assets/Logo2.png";
 import Register from "../Register/Register";
 import Login from "../auth/Login";
@@ -6,19 +7,33 @@ import Login from "../auth/Login";
 const navbarlinks = [
   { id: 1, title: "Inicio", link: "http://localhost:5173/#" },
   { id: 2, title: "Nuestros vehículos", link: "/categories" },
-  { id: 3, title: "Quiénes somos", link: "#" },
+  { id: 3, title: "Quiénes somos", link: "/quienes-somos" },
 ];
 
 const Navbar = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [usuario, setUsuario] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUser = localStorage.getItem("usuario");
     if (storedUser) {
       setUsuario(JSON.parse(storedUser));
     }
+  }, []);
+
+  // Cerrar dropdown si se hace clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const openLogin = () => {
@@ -39,6 +54,7 @@ const Navbar = () => {
   const handleLogout = () => {
     localStorage.removeItem("usuario");
     setUsuario(null);
+    navigate("/");
   };
 
   return (
@@ -58,7 +74,7 @@ const Navbar = () => {
               </li>
             ))}
           </ul>
-          <ul className="flex space-x-4">
+          <ul className="flex space-x-4 relative">
             {!usuario ? (
               <li>
                 <button
@@ -70,20 +86,37 @@ const Navbar = () => {
                 </button>
               </li>
             ) : (
-              <>
-                <li className="flex items-center gap-2 text-sm sm:text-base text-black">
+              <li className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="flex items-center gap-2 text-sm sm:text-base text-black hover:text-red-600"
+                >
                   <i className="bi bi-person-check sm:text-2xl text-lg"></i>
                   {usuario.nombre}
-                </li>
-                <li>
-                  <button
-                    onClick={handleLogout}
-                    className="text-sm sm:text-base text-red-600 hover:underline"
-                  >
-                    Cerrar sesión
-                  </button>
-                </li>
-              </>
+                </button>
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
+                    <Link
+                      to="/perfil"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Perfil
+                    </Link>
+                    <Link
+                      to="/historial"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Historial de Pedidos
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                    >
+                      Cerrar sesión
+                    </button>
+                  </div>
+                )}
+              </li>
             )}
           </ul>
         </div>
