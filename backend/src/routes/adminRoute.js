@@ -7,6 +7,8 @@ import {
   addVehiculo,
   updateVehiculo,
   deleteVehiculo,
+  getResenas,
+  deleteResena,
 } from "../controllers/adminController.js";
 
 const router = express.Router();
@@ -21,5 +23,9 @@ router.get("/vehiculos", getVehiculos);
 router.post("/vehiculos", addVehiculo);
 router.put("/vehiculos/:id", updateVehiculo);
 router.delete("/vehiculos/:id", deleteVehiculo);
+
+// ========== RESEÑAS ==========
+router.get("/resenas", getResenas);
+router.delete("/resenas/:id", deleteResena);
 
 export default router;

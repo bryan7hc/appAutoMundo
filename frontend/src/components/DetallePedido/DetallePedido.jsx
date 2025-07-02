@@ -11,7 +11,9 @@ const DetallePedido = () => {
   useEffect(() => {
     const fetchDetalle = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/pedidos/${id}`);
+        const response = await axios.get(
+          `http://localhost:3000/api/pedidos/${id}`
+        );
         setPedido(response.data);
       } catch (err) {
         console.error("Error al obtener el pedido:", err);
@@ -59,7 +61,9 @@ const DetallePedido = () => {
 
   return (
     <main className="pt-24 px-6">
-      <h1 className="text-2xl font-bold mb-4">Detalle del Pedido #{pedido.id}</h1>
+      <h1 className="text-2xl font-bold mb-4">
+        Detalle del Pedido #{pedido.id}
+      </h1>
       <p>Fecha: {new Date(pedido.fecha).toLocaleDateString()}</p>
       <p>Estado: {pedido.estado}</p>
 

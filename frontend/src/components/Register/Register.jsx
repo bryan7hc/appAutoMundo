@@ -1,7 +1,8 @@
+// src/components/auth/Register.jsx
 import axios from "axios";
 import React, { useState } from "react";
 
-const Register = () => {
+const Register = ({ onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
     nombre: "",
     correo: "",
@@ -39,8 +40,14 @@ const Register = () => {
         "http://localhost:3000/api/usuarios/registro",
         formData
       );
+
       setSuccess(response.data.message || "Usuario registrado correctamente");
       setFormData({ nombre: "", correo: "", telefono: "", contraseña: "" });
+
+      // Redirigir al login después de 2 segundos
+      setTimeout(() => {
+        onSwitchToLogin(); // ✅ abre el modal de login // Asegúrate de que esta ruta esté definida en tus rutas
+      }, 2000);
     } catch (error) {
       console.error("Error al registrar:", error);
       setError(

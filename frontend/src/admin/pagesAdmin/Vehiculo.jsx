@@ -1,11 +1,25 @@
+// frontend/src/admin/pagesAdmin/Vehiculo.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Sidebar from "../componentsAdmin/Sidebar";
 
 export default function Vehiculo() {
   const [vehiculos, setVehiculos] = useState([]);
+  const [form, setForm] = useState({
+    nombre: "",
+    precio: "",
+    categoria: "camioneta",
+    stock: "",
+    marca_id: "",
+    descripcion: "",
+    imagen: "",
+  });
+  const [editando, setEditando] = useState(null);
   const [mostrarModal, setMostrarModal] = useState(false);
-  const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState(null);
+
+  useEffect(() => {
+    obtenerVehiculos();
+  }, []);
 
   const obtenerVehiculos = async () => {
     try {
@@ -16,45 +30,41 @@ export default function Vehiculo() {
     }
   };
 
-  useEffect(() => {
-    obtenerVehiculos();
-  }, []);
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const abrirModal = (vehiculo = null) => {
-    setVehiculoSeleccionado(
-      vehiculo || {
+    if (vehiculo) {
+      setForm(vehiculo);
+      setEditando(vehiculo.vehiculo_id);
+    } else {
+      setForm({
         nombre: "",
         precio: "",
-        categoria: "",
+        categoria: "camioneta",
         stock: "",
         marca_id: "",
         descripcion: "",
         imagen: "",
-      }
-    );
+      });
+      setEditando(null);
+    }
     setMostrarModal(true);
   };
 
-  const cerrarModal = () => {
-    setMostrarModal(false);
-    setVehiculoSeleccionado(null);
-  };
+  const cerrarModal = () => setMostrarModal(false);
 
-  const guardarCambios = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (vehiculoSeleccionado.vehiculo_id) {
-        // Editar
+      if (editando) {
         await axios.put(
-          `http://localhost:3000/api/admin/vehiculos/${vehiculoSeleccionado.vehiculo_id}`,
-          vehiculoSeleccionado
+          `http://localhost:3000/api/admin/vehiculos/${editando}`,
+          form
         );
       } else {
-        // Crear nuevo
-        await axios.post(
-          "http://localhost:3000/api/admin/vehiculos",
-          vehiculoSeleccionado
-        );
+        await axios.post("http://localhost:3000/api/admin/vehiculos", form);
       }
       obtenerVehiculos();
       cerrarModal();
@@ -63,201 +73,213 @@ export default function Vehiculo() {
     }
   };
 
-  const eliminarVehiculo = async (id) => {
-    if (confirm("¿Estás seguro de que quieres eliminar este vehículo?")) {
-      try {
-        await axios.delete(`http://localhost:3000/api/admin/vehiculos/${id}`);
-        obtenerVehiculos();
-      } catch (error) {
-        console.error("Error al eliminar vehículo:", error);
-      }
+  const handleEliminar = async (id) => {
+    if (!window.confirm("¿Estás seguro que deseas eliminar este vehículo?"))
+      return;
+    try {
+      await axios.delete(`http://localhost:3000/api/admin/vehiculos/${id}`);
+      obtenerVehiculos();
+    } catch (error) {
+      console.error("Error al eliminar vehículo:", error);
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
-
-      <div className="ml-60 flex-1 p-8">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Gestión de Vehículos</h1>
+    <div className="flex bg-gray-100 min-h-screen">
+      <div className="ml-60 w-full p-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Gestión de Vehículos</h1>
           <button
             onClick={() => abrirModal()}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
           >
-            + Agregar Vehículo
+            Registrar Vehículo
           </button>
         </div>
 
-        <table className="w-full border border-gray-300 bg-white shadow-md rounded overflow-hidden text-sm">
-          <thead className="bg-red-600 text-white">
-            <tr>
-              <th className="py-2 px-2 border">ID</th>
-              <th className="py-2 px-2 border">Nombre</th>
-              <th className="py-2 px-2 border">Precio</th>
-              <th className="py-2 px-2 border">Categoría</th>
-              <th className="py-2 px-2 border">Stock</th>
-              <th className="py-2 px-2 border">Marca ID</th>
-              <th className="py-2 px-2 border">Descripción</th>
-              <th className="py-2 px-2 border">Imagen</th>
-              <th className="py-2 px-2 border">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {vehiculos.map((vehiculo) => (
-              <tr
-                key={vehiculo.vehiculo_id}
-                className="hover:bg-gray-100 text-center"
-              >
-                <td className="py-2 px-2 border">{vehiculo.vehiculo_id}</td>
-                <td className="py-2 px-2 border">{vehiculo.nombre}</td>
-                <td className="py-2 px-2 border">${vehiculo.precio}</td>
-                <td className="py-2 px-2 border">{vehiculo.categoria}</td>
-                <td className="py-2 px-2 border">{vehiculo.stock}</td>
-                <td className="py-2 px-2 border">{vehiculo.marca_id}</td>
-                <td className="py-2 px-2 border">{vehiculo.descripcion}</td>
-                <td className="py-2 px-2 border">
-                  <img
-                    src={vehiculo.imagen}
-                    alt="vehiculo"
-                    className="w-16 h-16 object-cover mx-auto"
-                  />
-                </td>
-                <td className="py-2 px-2 border">
-                  <button
-                    onClick={() => abrirModal(vehiculo)}
-                    className="text-blue-600 hover:underline mr-2"
-                  >
-                    Modificar
-                  </button>
-                  <button
-                    onClick={() => eliminarVehiculo(vehiculo.vehiculo_id)}
-                    className="text-red-600 hover:underline"
-                  >
-                    Eliminar
-                  </button>
-                </td>
+        {/* Tabla de vehículos */}
+        <div className="overflow-x-auto bg-white rounded-lg shadow  bg-transparent">
+          <table className="min-w-full table-auto text-sm text-gray-700">
+            <thead className="bg-gray-200 text-gray-600">
+              <tr>
+                <th className="p-3">ID</th>
+                <th className="p-3">Nombre</th>
+                <th className="p-3">Precio</th>
+                <th className="p-3">Categoría</th>
+                <th className="p-3">Stock</th>
+                <th className="p-3">Marca</th>
+                <th className="p-3">Imagen</th>
+                <th className="p-3">Acciones</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {vehiculos.length > 0 ? (
+                vehiculos.map((v) => (
+                  <tr
+                    key={v.vehiculo_id}
+                    className="border-b hover:bg-gray-50 text-center"
+                  >
+                    <td className="p-2">{v.vehiculo_id}</td>
+                    <td className="p-2">{v.nombre}</td>
+                    <td className="p-2">${v.precio}</td>
+                    <td className="p-2 capitalize">{v.categoria}</td>
+                    <td className="p-2">{v.stock}</td>
+                    <td className="p-2">{v.nombre_marca}</td>
+                    <td className="p-2">
+                      <img
+                        src={v.imagen}
+                        alt="vehiculo"
+                        className="w-16 h-16 object-cover rounded mx-auto"
+                      />
+                    </td>
+                    <td className="p-2 flex justify-center gap-2">
+                      <button
+                        onClick={() => abrirModal(v)}
+                        className="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        onClick={() => handleEliminar(v.vehiculo_id)}
+                        className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="8" className="text-center py-4 text-gray-500">
+                    No hay vehículos registrados.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      {/* Modal */}
-      {mostrarModal && vehiculoSeleccionado && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg w-[500px] max-w-full shadow-lg">
-            <h2 className="text-xl font-semibold mb-4">
-              {vehiculoSeleccionado.vehiculo_id
-                ? "Editar Vehículo"
-                : "Nuevo Vehículo"}
-            </h2>
-            <form onSubmit={guardarCambios} className="space-y-3">
-              <input
-                type="text"
-                placeholder="Nombre"
-                value={vehiculoSeleccionado.nombre}
-                onChange={(e) =>
-                  setVehiculoSeleccionado({
-                    ...vehiculoSeleccionado,
-                    nombre: e.target.value,
-                  })
-                }
-                className="w-full border border-gray-300 px-3 py-2 rounded"
-                required
-              />
-              <input
-                type="number"
-                placeholder="Precio"
-                value={vehiculoSeleccionado.precio}
-                onChange={(e) =>
-                  setVehiculoSeleccionado({
-                    ...vehiculoSeleccionado,
-                    precio: e.target.value,
-                  })
-                }
-                className="w-full border border-gray-300 px-3 py-2 rounded"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Categoría"
-                value={vehiculoSeleccionado.categoria}
-                onChange={(e) =>
-                  setVehiculoSeleccionado({
-                    ...vehiculoSeleccionado,
-                    categoria: e.target.value,
-                  })
-                }
-                className="w-full border border-gray-300 px-3 py-2 rounded"
-              />
-              <input
-                type="number"
-                placeholder="Stock"
-                value={vehiculoSeleccionado.stock}
-                onChange={(e) =>
-                  setVehiculoSeleccionado({
-                    ...vehiculoSeleccionado,
-                    stock: e.target.value,
-                  })
-                }
-                className="w-full border border-gray-300 px-3 py-2 rounded"
-              />
-              <input
-                type="text"
-                placeholder="Marca ID"
-                value={vehiculoSeleccionado.marca_id}
-                onChange={(e) =>
-                  setVehiculoSeleccionado({
-                    ...vehiculoSeleccionado,
-                    marca_id: e.target.value,
-                  })
-                }
-                className="w-full border border-gray-300 px-3 py-2 rounded"
-              />
-              <input
-                type="text"
-                placeholder="Descripción"
-                value={vehiculoSeleccionado.descripcion}
-                onChange={(e) =>
-                  setVehiculoSeleccionado({
-                    ...vehiculoSeleccionado,
-                    descripcion: e.target.value,
-                  })
-                }
-                className="w-full border border-gray-300 px-3 py-2 rounded"
-              />
-              <input
-                type="text"
-                placeholder="URL Imagen"
-                value={vehiculoSeleccionado.imagen}
-                onChange={(e) =>
-                  setVehiculoSeleccionado({
-                    ...vehiculoSeleccionado,
-                    imagen: e.target.value,
-                  })
-                }
-                className="w-full border border-gray-300 px-3 py-2 rounded"
-              />
-              <div className="flex justify-end gap-2 mt-4">
-                <button
-                  type="button"
-                  onClick={cerrarModal}
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+        {mostrarModal && (
+          <div className="fixed inset-0 bg-transparent backdrop-blur-md flex items-center justify-center z-60">
+            <div className="bg-white rounded-lg p-6 w-full max-w-4xl shadow-lg relative">
+              <button
+                onClick={cerrarModal}
+                className="absolute top-2 right-3 text-gray-500 hover:text-red-600 text-xl"
+              >
+                &times;
+              </button>
+              <h2 className="text-2xl font-semibold mb-4">
+                {editando ? "Editar" : "Registrar"} Vehículo
+              </h2>
+              <form
+                onSubmit={handleSubmit}
+                className="grid grid-cols-2 gap-4 text-sm"
+              >
+                {[
+                  { name: "nombre", placeholder: "Nombre" },
+                  { name: "precio", type: "number", placeholder: "Precio" },
+                  { name: "stock", type: "number", placeholder: "Stock" },
+                  { name: "modelo", placeholder: "Modelo" },
+                  { name: "color", placeholder: "Color" },
+                  { name: "motor", placeholder: "Motor" },
+                  { name: "transmision", placeholder: "Transmisión" },
+                  {
+                    name: "kilometraje",
+                    type: "number",
+                    placeholder: "Kilometraje",
+                  },
+                  { name: "combustible", placeholder: "Combustible" },
+                  {
+                    name: "puertas",
+                    type: "number",
+                    placeholder: "N° de puertas",
+                  },
+                  {
+                    name: "asientos",
+                    type: "number",
+                    placeholder: "N° de asientos",
+                  },
+                  { name: "condicion", placeholder: "Condición" },
+                  { name: "garantia", placeholder: "Garantía" },
+                  { name: "ubicacion", placeholder: "Ubicación" },
+                ].map(({ name, placeholder, type = "text" }) => (
+                  <input
+                    key={name}
+                    type={type}
+                    name={name}
+                    value={form[name] || ""}
+                    onChange={handleChange}
+                    placeholder={placeholder}
+                    className="border rounded px-3 py-2"
+                  />
+                ))}
+
+                {/* Categoria select */}
+                <select
+                  name="categoria"
+                  value={form.categoria}
+                  onChange={handleChange}
+                  className="border rounded px-3 py-2"
                 >
-                  Cancelar
-                </button>
+                  <option value="camioneta">Camioneta</option>
+                  <option value="electrico">Eléctrico</option>
+                  <option value="deportivo">Deportivo</option>
+                </select>
+
+                {/* Marca ID */}
+                <input
+                  type="text"
+                  name="marca_id"
+                  value={form.marca_id}
+                  onChange={handleChange}
+                  placeholder="ID Marca"
+                  className="border rounded px-3 py-2"
+                />
+
+                {/* Imagen */}
+                <input
+                  type="text"
+                  name="imagen"
+                  value={form.imagen}
+                  onChange={handleChange}
+                  placeholder="URL de la imagen"
+                  className="border rounded px-3 py-2 col-span-2"
+                />
+
+                {/* Descripción */}
+                <textarea
+                  name="descripcion"
+                  value={form.descripcion}
+                  onChange={handleChange}
+                  placeholder="Descripción"
+                  rows="3"
+                  className="border rounded px-3 py-2 col-span-2"
+                />
+
+                {/* Destacado */}
+                <label className="col-span-2 flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="destacado"
+                    checked={form.destacado === true || form.destacado === 1}
+                    onChange={(e) =>
+                      setForm({ ...form, destacado: e.target.checked ? 1 : 0 })
+                    }
+                  />
+                  ¿Vehículo destacado?
+                </label>
+
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                  className="col-span-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
                 >
-                  Guardar
+                  {editando ? "Actualizar" : "Registrar"}
                 </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

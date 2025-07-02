@@ -1,10 +1,19 @@
+import dotenv from 'dotenv';
 import express from "express";
 import cors from "cors";
 import userRoute from "./routes/userRoute.js";
 import authRoute from "./routes/authRoute.js";
-import vehiculosRoutes from "./routes/vehiculosRoutes.js";
-import pedidosRoutes from "./routes/pedidosRoutes.js";
+import vehiculosRoute from "./routes/vehiculosRoute.js";
+import pedidosRoute from "./routes/pedidosRoute.js";
+import proveedorRoutes from "./routes/proveedorRoute.js";
 import adminRoutes from "./routes/adminRoute.js";
+import resenaRoute from "./routes/resenaRoute.js"; // 👈 importa la ruta
+
+import pagoRoute from "./routes/pagoRoute.js";
+
+dotenv.config();
+
+
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -25,13 +34,13 @@ app.use("/api/auth", authRoute);
 app.use("/api/usuarios", userRoute);
 
 //CATEGORIAS DE VEHICULOS
-app.use("/api/vehiculos", vehiculosRoutes);
+app.use("/api/vehiculos", vehiculosRoute);
 
 //Admin
 app.use("/api/admin", adminRoutes); //
 
-// Pedido 
-app.use("/api/pedidos", pedidosRoutes);
+// Pedido
+app.use("/api/pedidos", pedidosRoute);
 
 //Comprobantes
 app.use(
@@ -39,6 +48,16 @@ app.use(
   express.static(path.join(__dirname, "src/public/comprobantes"))
 );
 
+//PROVEEDOR
+app.use("/api/proveedores", proveedorRoutes);
+
+//RESEÑAS
+app.use("/api/resenas", resenaRoute); // 👈 habilita el endpoint
+
+//MERCADOPAGO
+app.use("/api/pago", pagoRoute);
+
+app.use("/imagenes", express.static(path.join(__dirname, "public/imagenes")));
 //Accesible la carpeta desde el naveador
 app.use(express.static(path.join(__dirname, "public")));
 

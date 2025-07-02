@@ -1,51 +1,39 @@
+// Componente Hero.jsx
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import React from "react";
 import Volvo from "../assets/Volvo.png";
 import Slider from "react-slick";
-import Auto1 from "../assets/slider/Auto1.png";
-import Auto2 from "../assets/slider/Auto2.png";
-import Auto3 from "../assets/slider/Auto3.png";
-import Auto4 from "../assets/slider/Auto4.png";
 import Electrificacion from "../assets/Electrificacion.png";
 import Seguridad from "../assets/Seguridad.png";
 import Sustentabilidad from "../assets/Sustentabilidad.png";
 import Footer from "../components/Footer/Footer";
-
-// Aquí un array ejemplo con autos destacados (puedes cambiarlo)
-const autosDestacados = [
-  { id: 1, nombre: "Chevrolet Equinox EV", imagen: Auto1 },
-  { id: 2, nombre: "Toyota Tacoma Híbrida 2025", imagen: Auto2 },
-  { id: 3, nombre: "Chevrolet Camaro", imagen: Auto3 },
-  { id: 4, nombre: "Mercedes-Benz AMG SL 55", imagen: Auto4 },
-  // más autos...
-];
+import { useNavigate } from "react-router-dom";
 
 const Hero = () => {
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    responsive: [
-      {
-        breakpoint: 1024,
-        settings: {
-          slidesToShow: 1,
-        },
-      },
-      {
-        breakpoint: 640,
-        settings: {
-          slidesToShow: 1,
-        },
-      },
-    ],
-  };
+  // URL base para imágenes desde el backend
+  const backendUrl = "http://localhost:3000/imagenes";
+
+  // Lista de autos destacados con URLs completas para las imágenes
+  const autosDestacados = [
+    { id: 1, nombre: "Tesla Model Y", imagen: `${backendUrl}/TeslaModelY.png` },
+    {
+      id: 2,
+      nombre: "Ford Mustang Mach-E",
+      imagen: `${backendUrl}/FordMustangMachE.png`,
+    },
+    { id: 3, nombre: "BMW i5", imagen: `${backendUrl}/BMWi5.png` },
+    { id: 4, nombre: "Tesla Model 3", imagen: `${backendUrl}/TeslaModel3.png` },
+    {
+      id: 5,
+      nombre: "Subaru Solterra",
+      imagen: `${backendUrl}/SubaruSolterra.png`,
+    },
+  ];
 
   return (
     <div className="mt-22">
+      {/* Imagen principal */}
       <div className="flex justify-center">
         <img
           src={Volvo}
@@ -59,39 +47,16 @@ const Hero = () => {
         Modelos destacados
       </h2>
 
-      {/* Carrusel de autos */}
-      <Slider {...settings} className="max-w-screen-xl mx-auto mt-6">
-        {autosDestacados.map((auto) => (
-          <div key={auto.id} className="px-2">
-            <img
-              src={auto.imagen}
-              alt={auto.nombre}
-              className="max-w-md w-full max-h160 object-contain rounded-md mx-auto"
-            />
-            <div className="mt-2 flex items-center justify-center gap-4">
-              <p className="font-medium text-center">{auto.nombre}</p>
-              <button
-                className="px-4 py-1 bg-red-800 text-white rounded hover:bg-red-400 transition"
-                onClick={() => {
-                  // Aquí luego irá la lógica para abrir detalles del auto
-                }}
-              >
-                EXPLORAR
-              </button>
-            </div>
-          </div>
-        ))}
-      </Slider>
+      {/* Carrusel de autos destacados */}
+      <CarruselAutos autosDestacados={autosDestacados} />
 
-      {/*Contenedor que promueve la empresa*/}
+      {/* Sección promocional */}
       <div className="mt-30 max-w-screen-xl mx-auto px-4">
-        {/* Frase centrada */}
         <p className="text-center text-3xl font-semibold mb-10 px-2">
-          Nos dedicamos a brindarte La libertad de moverse de forma personal,
+          Nos dedicamos a brindarte la libertad de moverte de forma personal,
           sostenible y segura.
         </p>
 
-        {/* Contenedor de las 3 columnas */}
         <div className="flex flex-col sm:flex-row justify-between gap-8">
           {/* Electrificación */}
           <div className="flex flex-col items-center text-center px-4">
@@ -133,6 +98,56 @@ const Hero = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// Componente interno CarruselAutos
+const CarruselAutos = ({ autosDestacados }) => {
+  const navigate = useNavigate();
+
+  const settings = {
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    responsive: [
+      {
+        breakpoint: 1024,
+        settings: {
+          slidesToShow: 1,
+        },
+      },
+      {
+        breakpoint: 640,
+        settings: {
+          slidesToShow: 1,
+        },
+      },
+    ],
+  };
+
+  return (
+    <Slider {...settings} className="max-w-screen-xl mx-auto mt-6">
+      {autosDestacados.map((auto) => (
+        <div key={auto.id} className="px-2">
+          <img
+            src={auto.imagen}
+            alt={auto.nombre}
+            className="max-w-md w-full max-h160 object-contain rounded-md mx-auto"
+          />
+          <div className="mt-2 flex items-center justify-center gap-4">
+            <p className="font-medium text-center">{auto.nombre}</p>
+            <button
+              className="px-4 py-1 bg-red-800 text-white rounded hover:bg-red-400 transition"
+              onClick={() => navigate(`/vehiculo/${auto.id}`)}
+            >
+              EXPLORAR
+            </button>
+          </div>
+        </div>
+      ))}
+    </Slider>
   );
 };
 

@@ -1,33 +1,24 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
 
-const HistorialPedido = () => {
+const HistorialPedidos = () => {
   const [pedidos, setPedidos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [mensaje, setMensaje] = useState("");
 
   useEffect(() => {
-    const usuario = JSON.parse(localStorage.getItem("usuario"));
-    if (!usuario) {
-      window.location.href = "/login"; // Redirige si no está logueado
-      return;
-    }
-
     const fetchPedidos = async () => {
+      const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+      console.log("📦 Usuario recuperado del localStorage:", usuario); // <== AQUI
+
+      if (!usuario) return;
+
       try {
-        const response = await axios.get(
-          `http://localhost:3000/api/pedidos/${usuario.id}`
-        );
-        setPedidos(response.data);
-        if (response.data.length === 0) {
-          setMensaje("No tienes pedidos registrados.");
-        }
+        const res = await axios.get(`http://localhost:3000/api/pedidos/usuario/${usuario.usuario_id}`);
+
+        
+        setPedidos(res.data);
       } catch (error) {
-        console.error("Error al obtener pedidos:", error);
-        setMensaje("Error al cargar el historial de pedidos.");
-      } finally {
-        setLoading(false);
+        console.error("❌ Error al obtener historial:", error);
       }
     };
 
@@ -35,37 +26,33 @@ const HistorialPedido = () => {
   }, []);
 
   return (
-    <main className="pt-24 px-6">
-      <h1 className="text-2xl font-bold text-center mb-6">
-        Historial de Pedidos
-      </h1>
-
-      {loading ? (
-        <p className="text-center">Cargando pedidos...</p>
-      ) : mensaje ? (
-        <p className="text-center text-gray-600">{mensaje}</p>
+    <div className="p-6 mt-24 max-w-4xl mx-auto bg-white rounded shadow">
+      <h2 className="text-xl font-bold mb-4">Historial de Pedidos</h2>
+      {pedidos.length === 0 ? (
+        <p>No hay pedidos registrados.</p>
       ) : (
-        <div className="space-y-6">
+        <ul className="space-y-4">
           {pedidos.map((pedido) => (
-            <div
-              key={pedido.id}
-              className="border border-gray-300 p-4 rounded-lg shadow-md"
-            >
-              <p className="text-lg font-semibold">Pedido #{pedido.id}</p>
-              <p>Fecha: {new Date(pedido.fecha).toLocaleDateString()}</p>
-              <p>Estado: {pedido.estado}</p>
-              <Link
-                to={`/pedido/${pedido.id}`}
-                className="text-blue-600 hover:underline"
-              >
-                Ver detalles
-              </Link>
-            </div>
+            <li key={pedido.pedido_id} className="border p-4 rounded">
+              <p>
+                <strong>Vehículo:</strong> {pedido.vehiculo}
+              </p>
+              <p>
+                <strong>Fecha:</strong>{" "}
+                {new Date(pedido.fecha_pedido).toLocaleString()}
+              </p>
+              <p>
+                <strong>Total:</strong> S/. {pedido.total}
+              </p>
+              <p>
+                <strong>Estado:</strong> {pedido.estado}
+              </p>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
-    </main>
+    </div>
   );
 };
 
-export default HistorialPedido;
+export default HistorialPedidos;

@@ -39,3 +39,39 @@ export const deleteVehiculo = async (id) => {
   const res = await axios.delete(`${API_URL}/vehiculos/${id}`);
   return res.data;
 };
+
+// ==================== PROVEEDORES ====================
+
+export const getProveedores = async () => {
+  const res = await axios.get(`${API_URL}/proveedores`);
+  return res.data;
+};
+
+export const addProveedor = async (data) => {
+  const res = await axios.post(`${API_URL}/proveedores`, data);
+  return res.data;
+};
+
+export const updateProveedor = async (id, data) => {
+  const res = await axios.put(`${API_URL}/proveedores/${id}`, data);
+  return res.data;
+};
+
+export const deleteProveedor = async (id) => {
+  const res = await axios.delete(`${API_URL}/proveedores/${id}`);
+  return res.data;
+};
+
+// ==================== RESEÑAS ====================
+
+// Obtener todas las reseñas
+export const getResenas = async () => {
+  const res = await axios.get(`${API_URL}/resenas`);
+  return res.data;
+};
+
+// Eliminar una reseña
+export const deleteResena = async (id) => {
+  const res = await axios.delete(`${API_URL}/resenas/${id}`);
+  return res.data;
+};

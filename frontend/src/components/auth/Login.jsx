@@ -1,10 +1,11 @@
-// src/components/auth/Login.jsx
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Login = ({ onLoginSuccess, onSwitchToRegister, onClose }) => {
   const [correo, setCorreo] = useState("");
   const [contraseña, setContraseña] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -14,10 +15,19 @@ const Login = ({ onLoginSuccess, onSwitchToRegister, onClose }) => {
         { correo, contraseña }
       );
 
+      const usuario = response.data.usuario;
+
       alert(response.data.mensaje);
-      localStorage.setItem("usuario", JSON.stringify(response.data.usuario));
-      onLoginSuccess(response.data.usuario); // notifica al padre
+      localStorage.setItem("usuario", JSON.stringify(usuario));
+      onLoginSuccess(usuario); // notifica al padre
       onClose(); // cierra el modal
+
+      // ✅ Redirigir por rol
+      if (usuario.rol === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/"); // o la ruta principal del cliente
+      }
     } catch (error) {
       alert(error.response?.data?.error || "Error al iniciar sesión");
     }
